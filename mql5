@@ -1,0 +1,124 @@
+
+//+------------------------------------------------------------------+
+//|                                                   AT Heiken Ashi EA MT5 |
+//|                                       Copyright 2021, Forex Robot Easy Team |
+//|                                               https://www.forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Input parameters
+input int signalCandles = 3;        // Number of candles for the signal
+input double lotSize = 0.1;         // Lot size for trading
+input bool enableTrailingStop = true;      // Enable trailing stop
+input int trailingStop = 50;       // Trailing stop value in points
+
+// Heiken Ashi colors
+enum HA_Color
+{
+    HA_COLOR_RED,
+    HA_COLOR_GREEN
+};
+
+//+------------------------------------------------------------------+
+//| Expert Advisor initialization function |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Initialize variables or set default values
+    
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor deinitialization function |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Perform any necessary cleanup or actions before the EA is removed
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor start function |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Loop through all currency pairs
+    for(int i = 0; i < SymbolsTotal(); i++)
+    {
+        string symbol = SymbolName(i, true);
+        
+        // Check if the current chart is of the desired timeframe
+        if(ChartPeriod() < PERIOD_M1 || ChartPeriod() > PERIOD_MN)
+            continue;
+        
+        // Get Heiken Ashi indicator values
+        HA_Color haColor = iCustom(symbol, ChartPeriod(), 'Heiken_Ashi.ex5', 0, 0);
+        
+        // Check if the number of consecutive candles with the same color has been reached
+        int consecutiveCandles = CountConsecutiveCandles(symbol, haColor);
+        if(consecutiveCandles >= signalCandles)
+        {
+            // Check if conditions for opening a trade are met
+            if(haColor == HA_COLOR_RED && IsBullishCandle(symbol, consecutiveCandles))
+            {
+                // Open a buy trade
+                OpenBuyTrade(symbol);
+            }
+            else if(haColor == HA_COLOR_GREEN && IsBearishCandle(symbol, consecutiveCandles))
+            {
+                // Open a sell trade
+                OpenSellTrade(symbol);
+            }
+        }
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Count the number of consecutive candles with the same color |
+//+------------------------------------------------------------------+
+int CountConsecutiveCandles(const string symbol, const HA_Color color)
+{
+    int count = 0;
+    for(int i = 1; i <= signalCandles; i++)
+    {
+        HA_Color haColor = iCustom(symbol, ChartPeriod(), 'Heiken_Ashi.ex5', i, 0);
+        if(haColor == color)
+            count++;
+        else
+            break;
+    }
+    return count;
+}
+
+//+------------------------------------------------------------------+
+//| Check if the current candle is bullish |
+//+------------------------------------------------------------------+
+bool IsBullishCandle(const string symbol, const int consecutiveCandles)
+{
+    // Implement your logic to check if the current candle is bullish
+    // Return true if it is, false otherwise
+}
+
+//+------------------------------------------------------------------+
+//| Check if the current candle is bearish |
+//+------------------------------------------------------------------+
+bool IsBearishCandle(const string symbol, const int consecutiveCandles)
+{
+    // Implement your logic to check if the current candle is bearish
+    // Return true if it is, false otherwise
+}
+
+//+------------------------------------------------------------------+
+//| Open a buy trade |
+//+------------------------------------------------------------------+
+void OpenBuyTrade(const string symbol)
+{
+    // Place your code to open a buy trade here
+}
+
+//+------------------------------------------------------------------+
+//| Open a sell trade |
+//+------------------------------------------------------------------+
+void OpenSellTrade(const string symbol)
+{
+    // Place your code to open a sell trade here
+}
